@@ -1,0 +1,31 @@
+# coding: utf8
+
+db.define_table('genres', 
+				Field('name', label=T('Name')),format='%(name)s') 
+				
+db.define_table('book',
+	Field('title',requires=IS_NOT_EMPTY(), label=T('Title')),
+	Field('author', requires=IS_NOT_EMPTY(), label=T('Author')),
+	Field('isbn', 'integer', requires=IS_LENGTH(13,13, error_message=T('Number has to be made of 13 digits')), label='ISBN'),
+	Field('release_year', 'integer', requires=IS_INT_IN_RANGE(-3000, request.utcnow.year+1), label=T('Release Year')),
+	Field('format', label=T('Format')),
+	Field('cover', 'upload', requires = IS_EMPTY_OR(IS_IMAGE()), label=T('Cover')),
+	Field('publisher', label=T('Publisher')),
+	Field('genre', 'reference genres', label=T('Genre')), 
+	auth.signature)
+
+db.define_table('copies',
+	Field('book_id', db.book, label=T('Book id')),
+	Field('copy_status', 'string', label=T('Copy status'), requires=IS_IN_SET(['available', 'reserved', 'not available', 'loaned'], multiple=False), default='active')
+	)
+
+db.define_table('loans',
+	Field('copy_id', db.copies, label=T('Copy id'), writable=False),
+	Field('user_id', db.auth_user, label=T('User id'), readable=True, writable=False, default=auth.user_id),
+	Field('start_date', 'date', label=T('Start date'),),
+	Field('end_date', 'date',  label=T('End date'), readable=True, writable=False, default=None),
+	Field('loan_status', 'string', label=T('Loan status'), requires=IS_IN_SET(['ended', 'reserved', 'loaned'], multiple=False)),
+	)
+
+db.auth_membership.user_id.readable=False
+db.auth_membership.user_id.writable=False

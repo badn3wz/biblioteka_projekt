@@ -1,0 +1,3 @@
+pracownik@pass.com
+zu@pass.com
+widok katalogu ma link w tytule do funkcji show ktora nie jest zdefiniowana w kontrolerze

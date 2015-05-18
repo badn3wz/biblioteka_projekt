@@ -1,0 +1,33 @@
+{{extend 'layout.html'}}
+<h2>{{=T('Show loan')}}:</h2>
+
+<table>
+	<tr>
+		<td>{{=T('Copy id')}}:</td>
+		<td><a href="{{=URL('show_copy',args=loan.copy_id)}}">{{=copy.id}}</a></td>
+	</tr>
+	<tr>
+		<td>{{=T('User id')}}:</td>
+		<td><a href="{{=URL('show_reader',args=loan.user_id)}}">{{=loan.user_id}}</a></td>
+	</tr>
+	<tr>
+		<td>{{=T('Loan status')}}:</td>
+		<td>{{=loan.loan_status}}</td>
+	</tr>
+	<tr>
+		<td>{{=T('Start date')}}:</td>
+		<td>{{=loan.start_date}}</td>
+	</tr>
+	<tr>
+		<td>{{=T('End date')}}:</td>
+		<td>{{=loan.end_date}}</td>
+	</tr>
+</table>
+{{if auth.has_membership('librarian') or auth.has_membership('admin'):}}
+{{if loan.loan_status=='reserved':}}
+<a class="btn" href="{{=URL('loan',args=loan.id)}}">{{=T('Loan book')}}</a>
+{{pass}}
+{{if loan.loan_status=='loaned':}}
+<a class="btn" href="{{=URL('end_loan',args=loan.id)}}">{{=T('End loan')}}</a>
+{{pass}}
+{{pass}}

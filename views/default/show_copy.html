@@ -1,0 +1,15 @@
+{{extend 'layout.html'}}
+<h2>{{=T('Copy ID')}}: {{=copy.id}}</h2>
+<table>
+	<tr>
+		<td>{{=T('Book ID')}}:</td>
+		<td>{{=copy.book_id}}</td>
+	</tr>
+	<tr>
+		<td>{{=T('State')}}:</td>
+		<td>{{=copy.copy_status}}</td>
+	</tr>
+</table>
+{{if copy.copy_status=='available':}}
+<a class="btn" href="{{=URL('reserve',args=copy.id)}}">{{=T('Reserve book')}}</a>
+{{pass}}

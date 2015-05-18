@@ -1,0 +1,69 @@
+﻿{{extend 'layout.html'}}
+<style>
+  .lewa{
+    font-weight: bold 
+  }
+  .prawa  {
+    font-style: italic;
+  }
+</style>
+
+<h2>{{=T('User:')}}{{=user.first_name}} {{=user.last_name}}</h2>
+<table class="table table-hover">
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('First name')}}:</td>
+		<td class="prawa">{{=user.first_name}}</td>
+	</tr>
+
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('Last name')}}:</td>
+		<td class="prawa">{{=user.last_name}}</td>
+	</tr>
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('E-mail')}}:</td>
+		<td class="prawa">{{=user.email}}</td>
+	</tr>
+
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('ID')}}:</td>
+		<td class="prawa">{{=user.id}}</td>
+	</tr>
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('Address')}}:</td>
+		<td class="prawa">{{=user.address}}</td>
+	</tr>
+
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('City')}}:</td>
+		<td class="prawa">{{=user.city}}</td>
+	</tr>
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('Phone')}}:</td>
+		<td class="prawa">{{=user.phone}}</td>
+	</tr>
+
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('Phone 2')}}:</td>
+		<td class="prawa">{{=user.phone2}}</td>
+	</tr>
+
+	<tr>
+		<td style="width:15%" class="lewa">{{=T('Loan history')}}:</td>
+		<td class="prawa"><a href="{{=URL('loan_history', args=user.id)}}">{{=T('Show loan history')}}</a></td>
+	</tr>
+</table>
+<hr>
+{{=form}}
+{{=form2}}
+
+{{if auth.has_membership('admin'):}}
+<table class="table table-striped table-hover">
+	{{for row in rows:}}
+	{{qwe=db(db.auth_group.id==row.group_id).select().first()}}
+	<tr>
+		<td style="width:15%">{{=T(qwe.role).capitalize()}}</td>
+		<td><input class="btn" type="submit" value="{{=T('Remove group')}}" onclick="ajax('{{=URL('deletesomething',args=[row.id,row.user_id])}}',[],null)"/></td>
+	</tr>
+	{{pass}}
+</table>
+{{pass}}

@@ -1,0 +1,64 @@
+{{extend 'layout.html'}}
+<style>
+  .lewa{
+    font-weight: bold 
+  }
+  .prawa  {
+    font-style: italic;
+  }
+</style>
+
+<h2>{{=post.title}}</h2>
+<div>
+<table class="table">
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('Title')}}:</td>
+    <td class="prawa">{{=post.title}}</td>
+  </tr>
+
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('Author')}}:</td>
+    <td class="prawa">{{=post.author}}</td>
+  </tr>
+
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('ISBN')}}:</td>
+    <td class="prawa">{{=post.isbn}}</td>
+  </tr>
+
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('Release Year')}}:</td>
+    <td class="prawa">{{=post.release_year}}</td>
+  </tr>
+
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('Format')}}:</td>
+    <td class="prawa">{{=post.format}}</td>
+  </tr>
+
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('Publisher')}}:</td>
+    <td class="prawa">{{=post.publisher}}</td>
+  </tr>
+
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('Genre')}}:</td>
+    <td class="prawa">{{=post.genre.name}}</td>
+  </tr>
+{{if post.cover:}}
+  <tr>
+    <td style="width:15%" class="lewa">{{=T('Cover')}}:</td>
+    <td class="prawa"><img src="{{=URL('download', args=post.cover)}}"
+     width=300 height=200 /></td>
+  </tr>
+{{pass}}
+{{if auth.has_membership('admin') or auth.has_membership('librarian') or auth.has_membership('reader'):}}
+	<tr>
+		<a class="btn" href="{{=URL('copies_chck',args=post.id)}}">{{=T('Copies')}}</a>
+		{{if auth.has_membership('admin') or auth.has_membership('librarian'):}}
+		<a class="btn" href="{{=URL('add_copy',args=post.id)}}">{{=T('Add Copies')}}</a>
+		{{pass}}
+	</tr>
+{{pass}}
+</table>
+</div>

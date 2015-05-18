@@ -1,0 +1,143 @@
+# -*- coding: utf-8 -*-
+# this file is released under public domain and you can use without limitations
+
+#########################################################################
+## This is a sample controller
+## - index is the default action of any application
+## - user is required for authentication and authorization
+## - download is for downloading files uploaded in the db (does streaming)
+## - call exposes all registered services (none by default)
+#########################################################################
+
+
+def index():
+    message = 'witamy na stronie biblioteki!'
+    return locals()
+    
+def book():
+    book = db.book(id)
+    tag = db(db.book_tags.post==post.id).select(orderby=~db.comm.created_on,limitby=(0,1)).first()
+    if auth.user:
+        db.comm.post.default = id
+        db.comm.parent_comm.default = comment.id if comment else None
+        form = SQLFORM(db.comm).process()
+    return locals()
+
+@auth.requires_login()
+def catalog():
+    permission = auth.has_membership('librarian')
+    grid = SQLFORM.grid(db.book, deletable=permission, editable=permission, csv=permission, create=permission, details=False, paginate=25, 
+        links=[dict(header='Link',body=lambda row: A('Pokaż', _href=URL('show',args=row.id)))])
+    return locals()
+
+def show():
+    post = db.book(request.args(0, cast=int))
+    return locals()
+
+def dzialaj():
+	user = db.auth_user(request.args(0, cast=int))
+	#redirect(URL('index'))
+	user.registration_key=''
+	return locals()
+	
+	
+@auth.requires_membership('librarian')
+def show_reader():
+    if request.args(0) and db.auth_user(request.args(0, cast=int)):
+        user = db.auth_user(request.args(0, cast=int))
+        form=FORM(INPUT(_type='submit'))
+        if form.accepts(request,session):
+            response.flash = 'Użytkownik został aktywowany'
+            user.registration_key=''
+            user.update_record(registration_key='')
+        return locals()
+    else:
+        session.flash = 'nie ma takiego uzytkownika'
+        redirect(URL('readers'))
+
+@auth.requires_membership('librarian')
+def add_tag():
+    form = SQLFORM(db.tags).process()
+    if form.accepted:
+        session.flash = "Tag został dodany"
+        redirect(URL('tags'))
+    return locals()
+
+@auth.requires_membership('librarian')
+def readers_pending():
+	grid = SQLFORM.grid(db.auth_user.registration_key=='pending', deletable=False, editable=True, create=False, details=False, paginate=25, 
+        links=[dict(header='Link',body=lambda row: A('Pokaż', _href=URL('show_reader',args=row.id)))])
+	return locals()
+	
+@auth.requires_membership('librarian')
+def readers():
+	grid = SQLFORM.grid(db.auth_user, deletable=False, editable=False, create=False, details=False, paginate=25, 
+        links=[dict(header='Link',body=lambda row: A('Pokaż', _href=URL('show_reader',args=row.id)))])
+	return locals()
+
+@auth.requires_login()
+def loan():
+    form = SQLFORM(db.loan).process()
+    if form.accepted:
+        session.flash = "Ksiazka zostala zarezerwowana"
+        redirect(URL('books'))
+    return locals()
+
+def __add_user_membership(form):
+    group_id = auth.id_group(role='reader')
+    user_id = form.vars.id
+    auth.add_membership(group.id,user_id)
+
+def user():
+    """
+    exposes:
+    http://..../[app]/default/user/login
+    http://..../[app]/default/user/logout
+    http://..../[app]/default/user/register
+    http://..../[app]/default/user/profile
+    http://..../[app]/default/user/retrieve_password
+    http://..../[app]/default/user/change_password
+    http://..../[app]/default/user/manage_users (requires membership in
+    use @auth.requires_login()
+        @auth.requires_membership('group name')
+        @auth.requires_permission('read','table name',record_id)
+    to decorate functions that need access control
+    """
+    auth.settings.register_onaccept = __add_user_membership
+    return dict(form=auth())
+
+@cache.action()
+def download():
+    """
+    allows downloading of uploaded files
+    http://..../[app]/default/download/[filename]
+    """
+    return response.download(request, db)
+
+
+def call():
+    """
+    exposes services. for example:
+    http://..../[app]/default/call/jsonrpc
+    decorate with @services.jsonrpc the functions to expose
+    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv
+    """
+    return service()
+
+
+@auth.requires_signature()
+def data():
+    """
+    http://..../[app]/default/data/tables
+    http://..../[app]/default/data/create/[table]
+    http://..../[app]/default/data/read/[table]/[id]
+    http://..../[app]/default/data/update/[table]/[id]
+    http://..../[app]/default/data/delete/[table]/[id]
+    http://..../[app]/default/data/select/[table]
+    http://..../[app]/default/data/search/[table]
+    but URLs must be signed, i.e. linked with
+      A('table',_href=URL('data/tables',user_signature=True))
+    or with the signed load operator
+      LOAD('default','data.load',args='tables',ajax=True,user_signature=True)
+    """
+    return dict(form=crud())
