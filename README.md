@@ -2,7 +2,7 @@
 Projekt systemu informatycznego wspomagającego pracę biblioteki.
 
 System dostępny pod adresem: 
-https://badn3wz.pythonanywhere.com/lib_alpha/default/indxe
+https://badn3wz.pythonanywhere.com/lib_alpha/default/index
 
 W systemie zarejestrowani są następujący użytkownicy(e-mail jest używany w systemie zamiast loginu):
 
